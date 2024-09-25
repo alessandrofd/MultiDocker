@@ -22,3 +22,18 @@ jobs:
       - run: docker push dantasaf/multi-nginx
       - run: docker push dantasaf/multi-server
       - run: docker push dantasaf/multi-worker
+
+      - name: Generate deployment package
+        run: zip -r deploy.zip . -x '*.git*'
+
+      - name: Deploy to EB
+        uses: einaregilsson/beanstalk-deploy@v22
+        with:
+          aws_access_key: ${{ secrets.AWS_ACCESS_KEY }}
+          aws_secret_key: ${{ secrets.AWS_SECRET_KEY }}
+          application_name: multi-docker
+          environment_name: Multi-docker-env
+          existing_bucket_name: elasticbeanstalk-sa-east-1-624998143504
+          region: sa-east-1
+          version_label: ${{ github.sha }}
+          deployment_package: deploy.zip
